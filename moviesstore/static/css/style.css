@@ -40,13 +40,13 @@
 }
 
 .img-card-200 {
-  height: 200px;
-  width: auto;
-  object-fit: contain; 
+  width: fit-content;
+  max-height: 200px;
 }
 
+
 .img-card-400 {
-  height: 400px;
-  width: auto;
-  object-fit: contain;
+  width: fit-content;
+  max-height: 500px;
+  max-width: 500px;
 }

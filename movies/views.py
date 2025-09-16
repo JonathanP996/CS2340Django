@@ -1,6 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Movie, Review
+from .models import Movie, Review, ReviewReport
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.urls import reverse
+
 
 def index(request):
     search_term = request.GET.get('search')
@@ -14,14 +17,36 @@ def index(request):
     template_data['movies'] = movies
     return render(request, 'movies/index.html', {'template_data': template_data})
 
+@login_required
+def report_review(request, id, review_id):
+    review = get_object_or_404(Review, id=review_id, movie_id=id)
+
+    # Check if the user already reported this review
+    existing_report = ReviewReport.objects.filter(review=review, reported_by=request.user).first()
+    if existing_report:
+        messages.warning(request, "You have already reported this review.")
+    else:
+        # Optionally log the report
+        ReviewReport.objects.create(review=review, reported_by=request.user)
+        
+        # Delete the review immediately
+        print(f"Deleting review {review.id} by {review.user.username}")
+        review.delete()
+        print("Deleted!")
+        messages.success(request, "Review reported and removed successfully.")
+
+    return redirect('movies.show', id=id)
+
 def show(request, id):
-    movie = Movie.objects.get(id=id)
+    movie = get_object_or_404(Movie, id=id)
+    # Fetch all reviews that still exist (deleted reviews are gone)
     reviews = Review.objects.filter(movie=movie)
 
-    template_data = {}
-    template_data['title'] = movie.name
-    template_data['movie'] = movie
-    template_data['reviews'] = reviews
+    template_data = {
+        'title': movie.name,
+        'movie': movie,
+        'reviews': reviews
+    }
     return render(request, 'movies/show.html', {'template_data': template_data})
 
 @login_required
