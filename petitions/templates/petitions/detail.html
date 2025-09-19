@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="p-3">
+  <div class="container">
+    <div class="row mt-3">
+      <div class="col-lg-8 mx-auto">
+        <a href="{% url 'petitions:index' %}" class="btn btn-link">← Back to Petitions</a>
+        <div class="card p-3">
+          <h3>{{ template_data.petition.title }}</h3>
+          <p class="text-muted">By {{ template_data.petition.created_by.username }} • {{ template_data.petition.created_at|date:"M d, Y H:i" }}</p>
+          <p>{{ template_data.petition.description|default:"No description." }}</p>
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="badge text-bg-dark">Yes votes: {{ template_data.petition.yes_count }}</span>
+            {% if user.is_authenticated %}
+              {% if template_data.has_voted %}
+                <button class="btn btn-success" disabled>Voted ✓</button>
+              {% else %}
+                <form method="post" action="{% url 'petitions:vote' id=template_data.petition.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn bg-dark text-white">Vote Yes</button>
+                </form>
+              {% endif %}
+            {% else %}
+              <a class="btn btn-outline-dark" href="{% url 'accounts.login' %}">Login to vote</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

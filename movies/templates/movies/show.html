@@ -33,7 +33,7 @@
           <li class="list-group-item pb-3 pt-3 review-item" id="review-{{ review.id }}">
             <h5 class="card-title">
               Review by {{ review.user.username }}
-              {% if user.is_authenticated %}
+              {% if user.is_authenticated and user != review.user %}
               <form method="post" action="{% url 'movies.report_review' id=template_data.movie.id review_id=review.id %}" style="display:inline;">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-warning">Report</button>
